@@ -67,7 +67,7 @@ export default function RootLayout({
       <head>
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
       </head>
-      <body className="font-body bg-bg-primary text-text-primary antialiased overscroll-none">
+      <body suppressHydrationWarning className="font-body bg-bg-primary text-text-primary antialiased overscroll-none">
         {/* Global film grain overlay */}
         <GrainOverlay />
 

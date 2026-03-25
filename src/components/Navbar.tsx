@@ -3,16 +3,20 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { NAV_LINKS, PERSONAL } from "@/lib/constants";
 import { useScrollProgress } from "@/hooks/useScrollProgress";
-import { Menu, X, Download } from "lucide-react";
+import { Menu, X, Download, Sun, Moon } from "lucide-react";
 import MagneticButton from "./ui/MagneticButton";
+import { useTheme } from "next-themes";
 
 export default function Navbar() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const { progress } = useScrollProgress();
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => setScrolled(window.scrollY > 100);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -46,6 +50,10 @@ export default function Navbar() {
     setMobileOpen(false);
   }, []);
 
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
+
   return (
     <>
       {/* Scroll Progress Bar */}
@@ -57,7 +65,7 @@ export default function Navbar() {
       <motion.nav
         className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${
           scrolled
-            ? "bg-bg-primary/80 backdrop-blur-2xl border-b border-white/[0.05]"
+            ? "bg-bg-primary/80 backdrop-blur-2xl border-b border-border-glass"
             : "bg-transparent"
         }`}
         initial={{ y: -100 }}
@@ -96,11 +104,23 @@ export default function Navbar() {
               </button>
             ))}
 
+            {mounted && (
+              <MagneticButton>
+                <button
+                  onClick={toggleTheme}
+                  className="w-10 h-10 border border-border-glass rounded-full flex items-center justify-center bg-text-primary/5 hover:bg-accent-primary/20 text-text-muted hover:border-accent-primary/50 hover:text-accent-primary hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] transition-all duration-300"
+                  aria-label="Toggle Theme"
+                  data-cursor="button"
+                >
+                  {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+                </button>
+              </MagneticButton>
+            )}
+
             <MagneticButton>
               <a
                 href={PERSONAL.resumeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+                download="Inayat_Hussain_Resume.pdf"
                 className="flex items-center gap-2 px-4 py-2 border border-accent-primary/30 rounded-full font-mono text-xs uppercase tracking-wider text-accent-primary hover:bg-accent-primary/10 hover:border-accent-primary/60 transition-all duration-300"
                 data-cursor="button"
               >
@@ -110,14 +130,25 @@ export default function Navbar() {
             </MagneticButton>
           </div>
 
-          {/* Mobile Hamburger */}
-          <button
-            className="md:hidden p-2 text-text-primary"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          {/* Mobile Buttons */}
+          <div className="flex md:hidden items-center gap-4">
+            {mounted && (
+              <button
+                onClick={toggleTheme}
+                className="p-2 text-text-muted hover:text-accent-primary transition-colors"
+                aria-label="Toggle Theme"
+              >
+                {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
+            )}
+            <button
+              className="p-2 text-text-primary"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
       </motion.nav>
 
@@ -147,8 +178,7 @@ export default function Navbar() {
               ))}
               <motion.a
                 href={PERSONAL.resumeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+                download="Inayat_Hussain_Resume.pdf"
                 className="mt-4 px-6 py-3 border border-accent-primary rounded-full font-mono text-sm uppercase tracking-wider text-accent-primary"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}

@@ -26,62 +26,79 @@ function ProjectCard({
   return (
     <div
       ref={cardRef}
-      className="project-panel min-w-[100vw] w-screen h-full flex items-center justify-center px-6 md:px-16 shrink-0"
+      className="project-panel min-w-[100vw] w-screen h-full flex items-center justify-center px-6 md:px-16 shrink-0 relative"
     >
-      <div ref={inViewRef} className="max-w-6xl w-full grid md:grid-cols-[55%_45%] gap-8 md:gap-12 items-center">
+      {/* Background glow specific to project color */}
+      <div 
+        className="absolute inset-0 opacity-20 blur-[150px] mix-blend-screen pointer-events-none"
+        style={{ background: `radial-gradient(circle at center, ${project.color}, transparent 60%)` }}
+      />
+      
+      <div ref={inViewRef} className="max-w-7xl w-full grid md:grid-cols-[55%_45%] gap-12 md:gap-20 items-center relative z-10">
         {/* Image */}
         <motion.div
-          className="relative rounded-xl overflow-hidden aspect-[16/10] group"
-          initial={{ scale: 1.15, opacity: 0 }}
+          className="relative rounded-2xl overflow-hidden aspect-[16/10] group neon-border p-1"
+          initial={{ scale: 1.1, opacity: 0 }}
           whileInView={{ scale: 1, opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="w-full h-full relative">
+          <div className="w-full h-full relative rounded-xl overflow-hidden glass-card">
             <Image
               src={project.image}
               alt={project.title}
               fill
-              className="object-cover"
+              priority
+              sizes="(max-width: 768px) 100vw, 60vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div
-              className="absolute inset-0"
+              className="absolute inset-0 mix-blend-overlay opacity-60 transition-opacity duration-500 group-hover:opacity-0"
               style={{
-                background: `linear-gradient(135deg, ${project.color}15, ${project.color}05, #11111188)`,
+                background: `linear-gradient(135deg, ${project.color}30, #111111)`,
               }}
             />
           </div>
 
           {/* Hover overlay */}
-          <div className="absolute inset-0 bg-bg-primary/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-            <span className="font-mono text-sm text-accent-primary uppercase tracking-wider flex items-center gap-2">
-              View Project <ExternalLink size={14} />
-            </span>
+          <div className="absolute inset-0 bg-bg-primary/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center z-20">
+            <MagneticButton>
+              <a
+                href={project.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-sm uppercase tracking-[0.2em] flex items-center gap-3 px-8 py-4 border border-white/20 rounded-full hover:bg-white/10 hover:border-white/40 transition-all"
+                style={{ color: project.color, textShadow: `0 0 10px ${project.color}` }}
+                data-cursor="button"
+              >
+                View Project <ExternalLink size={16} />
+              </a>
+            </MagneticButton>
           </div>
         </motion.div>
 
         {/* Info */}
-        <div className="space-y-5">
+        <div className="space-y-6">
           {/* Number */}
           <span
-            className="font-display text-7xl md:text-8xl font-bold block leading-none select-none"
-            style={{ color: `${project.color}20` }}
+            className="font-display text-[8rem] md:text-[12rem] font-bold block leading-none select-none opacity-20 drop-shadow-2xl translate-y-8"
+            style={{ color: project.color, WebkitTextStroke: `2px ${project.color}` }}
           >
             {project.number}
           </span>
 
           {/* Title */}
-          <h3 className="font-display text-2xl md:text-4xl font-bold text-text-primary">
-            <TextScramble text={project.title} play={isInView} speed={25} />
+          <h3 className="font-display text-4xl md:text-6xl font-extrabold text-text-primary drop-shadow-md relative z-10">
+            <TextScramble text={project.title} play={isInView} speed={30} />
           </h3>
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3 relative z-10">
             {project.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-3 py-1 rounded-full glass-card font-mono text-[11px] uppercase tracking-wider"
-                style={{ color: project.color, borderColor: `${project.color}30` }}
+                className="px-4 py-1.5 rounded-full glass-card font-mono text-[10px] md:text-xs uppercase tracking-widest border text-text-primary"
+                style={{ borderColor: `${project.color}40`, backgroundColor: `${project.color}10` }}
               >
                 {tag}
               </span>
@@ -89,29 +106,31 @@ function ProjectCard({
           </div>
 
           {/* Description */}
-          <p className="font-body text-sm md:text-base text-text-secondary leading-relaxed">
+          <p className="font-body text-base md:text-lg text-text-secondary leading-relaxed font-light relative z-10">
             {project.description}
           </p>
 
-          {/* Period */}
-          <span className="font-mono text-xs text-text-muted block">{project.period}</span>
-
-          {/* CTA */}
-          <MagneticButton>
-            <a
-              href={project.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 font-mono text-sm uppercase tracking-wider group/link"
-              style={{ color: project.color }}
-              data-cursor="link"
-              data-cursor-label="OPEN"
-            >
-              View on GitHub
-              <span className="w-0 group-hover/link:w-6 h-[1px] transition-all duration-500" style={{ backgroundColor: project.color }} />
-              <ExternalLink size={14} />
-            </a>
-          </MagneticButton>
+          <div className="flex items-center gap-6 relative z-10 pt-4">
+            {/* Period */}
+            <span className="font-mono text-xs md:text-sm text-text-dim uppercase tracking-widest">{project.period}</span>
+            <div className="h-[1px] flex-1 bg-border-glass" />
+            
+            {/* CTA */}
+            <div className="shrink-0">
+                <a
+                  href={project.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 font-mono text-sm uppercase tracking-wider group/link text-text-primary"
+                  data-cursor="link"
+                  data-cursor-label="OPEN"
+                >
+                  GitHub
+                  <span className="w-0 group-hover/link:w-8 h-[1px] transition-all duration-500" style={{ backgroundColor: project.color }} />
+                  <ExternalLink size={14} className="group-hover/link:translate-x-1 group-hover:link:-translate-y-1 transition-transform" />
+                </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -169,7 +188,7 @@ export default function Projects() {
                   className="font-display font-bold text-text-primary mb-4"
                   style={{
                     fontSize: "clamp(3rem, 8vw, 8rem)",
-                    WebkitTextStroke: "1px rgba(255,255,255,0.15)",
+                    WebkitTextStroke: "1px var(--text-dim)",
                     color: "transparent",
                   }}
                 >
@@ -224,6 +243,7 @@ export default function Projects() {
                     src={project.image}
                     alt={project.title}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover"
                   />
                   <div
@@ -238,10 +258,10 @@ export default function Projects() {
                   {project.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="px-2 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider border"
+                      className="px-2 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider border text-text-primary"
                       style={{
-                        color: project.color,
                         borderColor: `${project.color}30`,
+                        backgroundColor: `${project.color}05`,
                       }}
                     >
                       {tag}

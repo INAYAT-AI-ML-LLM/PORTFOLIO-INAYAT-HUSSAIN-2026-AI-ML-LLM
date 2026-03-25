@@ -9,8 +9,9 @@ interface MagneticButtonProps {
   radius?: number;
   className?: string;
 }
+import { memo } from "react";
 
-export default function MagneticButton({
+export default memo(function MagneticButton({
   children,
   strength = 0.3,
   radius = 150,
@@ -56,4 +57,4 @@ export default function MagneticButton({
       {children}
     </motion.div>
   );
-}
+});

@@ -11,7 +11,9 @@ interface GlassCardProps {
   tilt?: boolean;
 }
 
-export default function GlassCard({
+import { memo } from "react";
+
+export default memo(function GlassCard({
   children,
   className = "",
   glowColor = "rgba(0, 240, 255, 0.15)",
@@ -67,4 +69,4 @@ export default function GlassCard({
       <div className="relative z-10">{children}</div>
     </motion.div>
   );
-}
+});

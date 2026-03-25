@@ -1,56 +1,83 @@
 "use client";
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef, useEffect } from "react";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import Image from "next/image";
-import { Award, ExternalLink, Calendar } from "lucide-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Award, ExternalLink, Calendar, Building2, Fingerprint } from "lucide-react";
 import { CERTIFICATIONS } from "@/lib/constants";
 import GlassCard from "@/components/ui/GlassCard";
 import HighlightSwipe from "@/components/ui/HighlightSwipe";
 import MarqueeStrip from "@/components/ui/MarqueeStrip";
 import TextScramble from "@/components/ui/TextScramble";
 
+gsap.registerPlugin(ScrollTrigger);
+
 export default function Certifications() {
   const sectionRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
 
   const featured = CERTIFICATIONS.find((c) => c.featured);
   const others = CERTIFICATIONS.filter((c) => !c.featured);
 
-  const y1 = useTransform(scrollYProgress, [0, 1], [100, -100]);
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Create a staggered fade-up for each timeline item
+      const items = gsap.utils.toArray(".timeline-item");
+      items.forEach((item: any, i) => {
+        gsap.fromTo(
+          item,
+          { opacity: 0, y: 100, scale: 0.95 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 1,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: item,
+              start: "top 85%",
+              end: "bottom 85%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
     <section
       ref={sectionRef}
       id="certifications"
-      className="relative py-36 md:py-48 overflow-hidden"
+      className="relative py-24 md:py-40 overflow-hidden"
     >
       {/* Background Marquee Strips */}
-      <div className="absolute inset-0 z-0 flex flex-col justify-center opacity-[0.03] pointer-events-none rotate-3 scale-110">
+      <div className="absolute inset-0 z-0 flex flex-col justify-center opacity-[0.02] pointer-events-none rotate-3 scale-110">
         <MarqueeStrip
           items={CERTIFICATIONS.map((c) => c.title)}
           direction="left"
-          className="font-display text-8xl font-bold leading-none py-4"
+          className="font-display text-8xl md:text-9xl font-bold leading-none py-4"
           separator=" ★ "
         />
         <MarqueeStrip
           items={["Verified Skills", "Industry Standard", "Continuous Learning", "Mastery"]}
           direction="right"
-          className="font-mono text-6xl uppercase tracking-widest leading-none py-12"
+          className="font-mono text-5xl md:text-6xl uppercase tracking-widest leading-none py-12"
           separator=" // "
         />
       </div>
 
       <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 2rem" }} className="relative z-10">
-        <div className="mb-20">
-          <span className="font-mono text-xs uppercase tracking-[0.2em] text-text-muted mb-4 block">
+        {/* Header */}
+        <div className="mb-24 text-center">
+          <span className="font-mono text-xs md:text-sm uppercase tracking-[0.3em] text-accent-secondary mb-4 block inline-block py-1 px-4 border border-accent-secondary/30 rounded-full bg-accent-secondary/10">
             05 — Certifications
           </span>
           <h2
-            className="font-display font-bold text-text-primary"
-            style={{ fontSize: "clamp(2.5rem, 5vw, 4.5rem)" }}
+            className="font-display font-extrabold text-text-primary mt-6 tracking-tight"
+            style={{ fontSize: "clamp(3rem, 6vw, 5rem)" }}
           >
             <HighlightSwipe color="var(--accent-secondary)">
               Proof of Work
@@ -58,154 +85,191 @@ export default function Certifications() {
           </h2>
         </div>
 
-        <div className="grid lg:grid-cols-[1fr_minmax(300px,400px)] gap-8 md:gap-12">
-          {/* Featured Certificate */}
+        {/* Featured Certificate - Hero Style */}
+        <div className="mb-32">
           {featured && (
-            <motion.div style={{ y: y1 }}>
+            <div className="relative z-20 mx-auto max-w-5xl">
               <GlassCard
-                className="p-8 md:p-12 h-full rounded-2xl border-accent-secondary/30 relative"
-                glowColor="rgba(139, 92, 246, 0.15)"
+                className="p-8 md:p-14 rounded-3xl border-accent-secondary/40 relative overflow-hidden group"
+                glowColor="rgba(139, 92, 246, 0.2)"
               >
-                {/* Persistent glow for featured */}
-                <div className="absolute inset-0 rounded-2xl shadow-[inset_0_0_60px_rgba(139,92,246,0.1)] pointer-events-none" />
+                {/* Immersive background glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-accent-secondary/10 via-transparent to-accent-primary/10 opacity-50 transition-opacity duration-700 group-hover:opacity-100" />
+                <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-accent-secondary/30 via-accent-primary/20 to-accent-secondary/30 blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-700 pointer-events-none -z-10" />
 
-                <div className="w-full aspect-video rounded-xl mb-8 relative overflow-hidden ring-1 ring-white/10">
-                  {featured.image ? (
-                    <Image
-                      src={featured.image}
-                      alt={featured.title}
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-bg-primary">
-                      <Award size={64} className="text-accent-secondary opacity-20" />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-bg-tertiary/80 via-transparent to-transparent pointer-events-none" />
-                </div>
-
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="w-14 h-14 rounded-full bg-accent-secondary/10 flex items-center justify-center ring-1 ring-accent-secondary/30 backdrop-blur-sm z-10">
-                    <Award size={28} className="text-accent-secondary" />
-                  </div>
-                  <div>
-                    <span className="font-mono text-xs text-accent-secondary uppercase tracking-widest block mb-1">
-                      Featured
-                    </span>
-                    <span className="font-body text-sm text-text-muted flex items-center gap-2">
-                      <Calendar size={14} /> {featured.date}
-                    </span>
-                  </div>
-                </div>
-
-                <h3 className="font-display text-3xl md:text-5xl font-bold text-text-primary mb-6 leading-tight">
-                  <TextScramble text={featured.title} play={true} speed={40} />
-                </h3>
-
-                <p className="font-body text-lg text-text-secondary mb-10 leading-relaxed max-w-2xl">
-                  {featured.description}
-                </p>
-
-                <div className="flex flex-wrap gap-3 mb-12">
-                  {featured.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="px-4 py-2 bg-accent-secondary/10 border border-accent-secondary/20 rounded-full font-mono text-xs text-accent-secondary uppercase tracking-wider"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-
-                <a
-                  href={featured.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-3 w-full md:w-auto px-8 py-4 bg-accent-secondary text-white font-mono text-sm uppercase tracking-wider rounded-lg hover:shadow-[0_0_30px_rgba(139,92,246,0.4)] transition-all duration-300"
-                  data-cursor="button"
-                >
-                  Verify Credential <ExternalLink size={16} />
-                </a>
-              </GlassCard>
-            </motion.div>
-          )}
-
-          {/* Other Certificates Grid */}
-          <div className="flex flex-col gap-6">
-            {others.map((cert, i) => (
-              <motion.div
-                key={cert.title}
-                initial={{ opacity: 0, x: 40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{
-                  duration: 0.6,
-                  delay: i * 0.15,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-              >
-                <a
-                  href={cert.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block group"
-                  data-cursor="link"
-                >
-                  <GlassCard className="p-6 transition-all duration-300 group-hover:bg-white/[0.02] group-hover:border-accent-primary/30">
-                    <div className="flex justify-between items-start mb-4">
-                      {cert.image ? (
-                        <div className="w-24 h-16 rounded overflow-hidden relative ring-1 ring-white/10">
-                          <Image
-                            src={cert.image}
-                            alt={cert.title}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-110"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-10 h-10 rounded bg-bg-tertiary flex items-center justify-center group-hover:bg-accent-primary/10 transition-colors">
-                          <Award
-                            size={20}
-                            className="text-text-muted group-hover:text-accent-primary transition-colors"
-                          />
-                        </div>
-                      )}
-                      <ExternalLink
-                        size={16}
-                        className="text-text-dim group-hover:text-accent-primary transition-colors opacity-0 group-hover:opacity-100 -translate-x-2 translate-y-2 group-hover:translate-x-0 group-hover:translate-y-0"
+                <div className="flex flex-col lg:flex-row gap-12 items-center relative z-10">
+                  {/* Left: Enhanced Thumbnail */}
+                  <div className="w-full lg:w-[45%] aspect-[4/3] rounded-2xl relative overflow-hidden ring-2 ring-white/10 shrink-0 transform transition-transform duration-700 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] group-hover:scale-105 group-hover:rotate-1">
+                    {featured.image ? (
+                      <Image
+                        src={featured.image}
+                        alt={featured.title}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        className="object-cover"
                       />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-bg-primary">
+                        <Award size={80} className="text-accent-secondary opacity-20" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-bg-primary via-bg-primary/20 to-transparent opacity-80" />
+                    
+                    {/* Overlay Badge */}
+                    <div className="absolute bottom-6 left-6 right-6 flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-full bg-accent-secondary text-white flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.6)]">
+                         <Award size={28} />
+                      </div>
+                      <div>
+                         <span className="font-mono text-[10px] text-bg-primary/70 uppercase tracking-widest block">Featured</span>
+                         <span className="font-display font-bold text-bg-primary text-lg leading-tight block">{featured.issuer}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right: Content */}
+                  <div className="flex-1 w-full flex flex-col justify-center">
+                    <div className="mb-6">
+                      <h3 className="font-display text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70 leading-tight mb-4">
+                        <TextScramble text={featured.title} play={true} speed={40} />
+                      </h3>
+
+                      <div className="flex flex-wrap items-center gap-y-3 gap-x-6 font-mono text-sm text-text-muted bg-white/5 p-4 rounded-xl border border-white/5">
+                        <div className="flex items-center gap-2">
+                          <Calendar size={16} className="text-accent-secondary" /> Issued {featured.date}
+                        </div>
+                        {featured.credentialId && featured.credentialId !== "N/A" && (
+                           <div className="flex items-center gap-2">
+                              <Fingerprint size={16} className="text-accent-secondary" /> ID: {featured.credentialId}
+                           </div>
+                        )}
+                      </div>
                     </div>
 
-                    <h4 className="font-display font-bold text-lg text-text-primary mb-2 group-hover:text-accent-primary transition-colors">
-                      {cert.title}
-                    </h4>
+                    <p className="font-body text-lg text-text-secondary leading-relaxed mb-8">
+                      {featured.description}
+                    </p>
 
-                    <div className="font-mono text-xs text-text-dim flex items-center gap-2 mb-4">
-                      <Calendar size={12} /> {cert.date}
+                    <div className="mb-10">
+                      <h4 className="font-mono text-xs text-text-muted uppercase tracking-widest mb-4">Core Skills Authorized</h4>
+                      <div className="flex flex-wrap gap-2.5">
+                        {featured.skills.map((skill) => (
+                          <span
+                            key={skill}
+                            className="px-4 py-2 bg-gradient-to-r from-accent-secondary/20 to-accent-secondary/5 border border-accent-secondary/30 text-bg-primary rounded-lg font-mono text-xs tracking-wider shadow-[0_0_15px_rgba(139,92,246,0.1)]"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      {cert.skills.slice(0, 3).map((skill) => (
-                         <span
-                         key={skill}
-                         className="text-[10px] font-mono text-text-secondary px-2 py-1 bg-black/20 rounded border border-white/5"
-                       >
-                         {skill}
-                       </span>
-                      ))}
-                      {cert.skills.length > 3 && (
-                        <span className="text-[10px] font-mono text-text-dim px-2 py-1">
-                          +{cert.skills.length - 3}
+                    <a
+                      href={featured.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-3 w-max px-8 py-4 bg-accent-secondary text-bg-primary font-display font-semibold text-sm uppercase tracking-widest rounded-full hover:shadow-[0_0_40px_rgba(139,92,246,0.5)] transition-all duration-300 transform hover:-translate-y-1"
+                      data-cursor="button"
+                    >
+                      Verify Credential <ExternalLink size={18} />
+                    </a>
+                  </div>
+                </div>
+              </GlassCard>
+            </div>
+          )}
+        </div>
+
+        {/* Cinematic Spatial 3D Grid for Other Certificates */}
+        <div className="relative mx-auto mt-32 lg:mt-48 perspective-[1200px]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-32 gap-x-16 auto-rows-min pb-24 relative z-10 w-full">
+            {others.map((cert, i) => {
+              const isEven = i % 2 === 0;
+
+              return (
+                <motion.div 
+                  key={cert.title} 
+                  className={`relative w-full group ${!isEven ? 'lg:mt-32' : 'lg:mt-0'}`}
+                  initial={{ opacity: 0, y: 100, rotateX: 15, scale: 0.9 }}
+                  whileInView={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
+                  viewport={{ once: true, margin: "-10%" }}
+                  transition={{ 
+                    duration: 1, 
+                    ease: [0.16, 1, 0.3, 1],
+                    delay: i * 0.1
+                  }}
+                >
+                  <GlassCard className="p-8 md:p-10 transition-all duration-700 bg-white/[0.02] hover:bg-white/[0.05] border-white/5 hover:border-white/20 transform hover:-translate-y-2 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.8)] h-full flex flex-col overflow-hidden relative rounded-3xl z-10 hover:z-50">
+                    
+                    {/* Decorative giant background logo/badge inside card */}
+                    <div className="absolute -right-8 -bottom-8 text-[150px] opacity-[0.02] select-none pointer-events-none transform group-hover:scale-110 group-hover:rotate-12 transition-transform duration-700">
+                        {cert.badge}
+                    </div>
+
+                    {/* Top: Header Row */}
+                    <div className="flex items-start justify-between mb-8 relative z-10">
+                        <div className="flex items-center gap-5">
+                          <div className="w-16 h-16 rounded-2xl bg-text-primary/5 border border-border-glass flex items-center justify-center shrink-0 shadow-inner group-hover:border-accent-primary/40 transition-colors backdrop-blur-md">
+                              <span className="text-3xl drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">{cert.badge}</span>
+                          </div>
+                          <div>
+                              <h4 className="font-display font-extrabold text-2xl md:text-3xl text-text-primary group-hover:text-accent-primary transition-colors leading-tight">
+                                {cert.title}
+                              </h4>
+                              <div className="font-mono text-sm text-text-muted mt-2 flex items-center gap-2 font-semibold">
+                                  <Building2 size={14} className="text-accent-primary/60" /> {cert.issuer}
+                              </div>
+                          </div>
+                        </div>
+                        <a
+                          href={cert.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-12 h-12 rounded-full flex items-center justify-center text-text-dim hover:text-text-primary hover:bg-accent-primary/20 transition-all border border-transparent hover:border-accent-primary/30 shrink-0 bg-text-primary/5"
+                          aria-label={`View ${cert.title} credential`}
+                        >
+                          <ExternalLink size={20} />
+                        </a>
+                    </div>
+
+                    {/* Credentials Data */}
+                    <div className="flex flex-wrap gap-4 mb-8 relative z-10">
+                        <span className="font-mono text-xs uppercase tracking-[0.2em] text-text-secondary bg-text-primary/5 px-4 py-2 rounded-xl flex items-center gap-2 border border-border-glass backdrop-blur-sm shadow-inner group-hover:border-accent-primary/20 transition-colors">
+                          <Calendar size={14} className="text-accent-primary/70" /> {cert.date}
                         </span>
-                      )}
+                        {cert.credentialId && cert.credentialId !== "N/A" && (
+                          <span className="font-mono text-xs uppercase tracking-[0.2em] text-text-secondary bg-text-primary/5 px-4 py-2 rounded-xl flex items-center gap-2 border border-border-glass backdrop-blur-sm shadow-inner group-hover:border-accent-secondary/20 transition-colors">
+                              <Fingerprint size={14} className="text-accent-secondary/70" /> ID: {cert.credentialId}
+                          </span>
+                        )}
+                    </div>
+
+                    {/* Description */}
+                    <p className="font-body text-base md:text-lg text-text-muted leading-relaxed mb-10 flex-1 relative z-10 font-light">
+                        {cert.description}
+                    </p>
+
+                    {/* Skills Drawer */}
+                    <div className="relative z-10 pt-8 border-t border-white/5 mt-auto">
+                        <h5 className="font-mono text-[11px] text-text-dim uppercase tracking-[0.3em] font-bold mb-4">Core Competencies</h5>
+                        <div className="flex flex-wrap gap-3">
+                        {cert.skills.map((skill) => (
+                          <span
+                              key={skill}
+                              className="text-xs font-mono text-text-secondary px-4 py-2 bg-gradient-to-r from-text-primary/5 to-transparent border border-border-glass rounded-xl hover:text-text-primary hover:border-text-primary/30 transition-all cursor-default shadow-sm"
+                          >
+                              {skill}
+                          </span>
+                        ))}
+                        </div>
                     </div>
                   </GlassCard>
-                </a>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         </div>
+
       </div>
     </section>
   );
