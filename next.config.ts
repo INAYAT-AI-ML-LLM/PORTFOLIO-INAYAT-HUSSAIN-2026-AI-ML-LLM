@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "export",
   images: {
-    formats: ["image/avif", "image/webp"],
+    unoptimized: true, // Absolutely mandatory for GitHub Pages since it has no image optimization backend
   },
   transpilePackages: ["three"],
 };
