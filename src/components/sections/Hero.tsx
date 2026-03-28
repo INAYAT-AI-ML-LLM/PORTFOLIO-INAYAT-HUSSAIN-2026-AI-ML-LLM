@@ -77,16 +77,14 @@ export default function Hero() {
       {/* ─── HERO SECTION ─────────────────────────────────────────────────────── */}
       <section
         id="hero"
-        className="relative"
-        style={{ height: isMobile ? "100dvh" : "250vh" }}
+        className="relative h-[100dvh] md:h-[250vh] w-full"
       >
         {/* ─── BACKGROUND ─────────────────────────────────────────────────── */}
         {mounted && (
           isMobile ? (
             /* Mobile — single frame as <Image> → fast LCP, no canvas overhead */
             <div
-              className="sticky w-full overflow-hidden bg-[#050505]"
-              style={{ top: "var(--navbar-h, 4rem)", height: "calc(100dvh - var(--navbar-h, 4rem))" }}
+              className="absolute inset-0 w-full h-[100dvh] overflow-hidden bg-[#050505]"
             >
               <Image
                 src="/images/hero section images frame/ezgif-frame-210.jpg"
@@ -95,9 +93,9 @@ export default function Hero() {
                 priority
                 sizes="100vw"
                 quality={85}
-                className="object-contain"
+                className="object-cover object-[center_20%]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/30 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-[#050505]/80" />
             </div>
           ) : (
             isLoaded && <FrameCanvas images={images} />
@@ -105,18 +103,21 @@ export default function Hero() {
         )}
 
         {/* ─── TEXT OVERLAY ────────────────────────────────────────────────── */}
-        {/*  Sticky so it travels with the canvas and disappears at section end */}
+        {/*  Absolute on mobile (fits screen), Sticky on desktop (scrolls with canvas) */}
         <div
-          className="sticky left-0 w-full z-10 pointer-events-none px-6 md:px-12 flex flex-col justify-end"
-          style={{
+          className="absolute md:sticky left-0 w-full z-10 pointer-events-none px-6 md:px-12 flex flex-col justify-end"
+          style={isMobile ? {
+            bottom: "8vh",
+            height: "auto",
+          } : {
             top: "var(--navbar-h, 4rem)",
             height: "calc(100dvh - var(--navbar-h, 4rem))",
-            marginTop: "calc(-100dvh + var(--navbar-h, 4rem))", // pull up to overlap the canvas
+            marginTop: "calc(-100dvh + var(--navbar-h, 4rem))",
             paddingBottom: "10vh",
           }}
           aria-live="polite"
         >
-          <div className="w-full max-w-4xl mx-auto flex flex-col items-start gap-4 pointer-events-auto">
+          <div className="w-full max-w-4xl mx-auto flex flex-col items-start gap-3 md:gap-4 pointer-events-auto">
 
             {/* Status indicator */}
             <motion.div
@@ -126,7 +127,7 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.1 }}
             >
               <span className="w-2 h-2 rounded-full bg-accent-primary animate-pulse shadow-[0_0_8px_rgba(0,229,255,0.8)]" />
-              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-accent-primary">
+              <span className="font-mono text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-accent-primary">
                 System Online
               </span>
             </motion.div>
@@ -136,8 +137,8 @@ export default function Hero() {
 
             {/* Job title — h2 for correct heading hierarchy */}
             <motion.h2
-              className="font-body font-semibold text-white/90 tracking-wide"
-              style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.65rem)" }}
+              className="font-body font-semibold text-white/90 tracking-wide leading-tight md:leading-normal"
+              style={{ fontSize: "clamp(1.2rem, 3.5vw, 1.65rem)" }}
               initial={{ opacity: 0, x: -20 }}
               animate={showContent ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.3 }}
@@ -149,20 +150,20 @@ export default function Hero() {
 
             {/* Tag line */}
             <motion.div
-              className="backdrop-blur-md bg-[#050505]/50 border-l-2 px-5 py-3 rounded-r-md"
+              className="backdrop-blur-md bg-[#050505]/60 md:bg-[#050505]/50 border-l-2 p-3 md:px-5 md:py-3 rounded-r-md mt-1 mb-2 md:mt-0 max-w-[90%]"
               style={{ borderLeftColor: "var(--accent-secondary, #b026ff)" }}
               initial={{ opacity: 0, scale: 0.97 }}
               animate={showContent ? { opacity: 1, scale: 1 } : {}}
               transition={{ duration: 0.7, delay: 0.5 }}
             >
-              <p className="font-mono text-xs md:text-sm tracking-widest text-white/60">
+              <p className="font-mono text-[11px] md:text-sm tracking-widest text-white/70 leading-relaxed md:leading-normal">
                 Building Scalable Web Solutions &amp; Intelligent AI Systems
               </p>
             </motion.div>
 
             {/* CTAs */}
             <motion.div
-              className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-2"
+              className="flex flex-row flex-wrap items-center gap-3 md:gap-4 mt-2"
               initial={{ opacity: 0, y: 16 }}
               animate={showContent ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.7 }}
@@ -171,7 +172,7 @@ export default function Hero() {
                 <a
                   href="#projects"
                   id="cta-projects"
-                  className="inline-flex items-center justify-center px-7 py-3.5 neon-border bg-[#0d0d0d] text-accent-primary font-display font-bold text-xs uppercase tracking-widest rounded-full hover:bg-accent-primary hover:text-[#050505] hover:shadow-[0_0_28px_rgba(0,229,255,0.4)] transition-all duration-300"
+                  className="inline-flex items-center justify-center px-5 py-3 md:px-7 md:py-3.5 neon-border bg-[#0d0d0d] text-accent-primary font-display font-bold text-[10px] md:text-xs uppercase tracking-widest rounded-full hover:bg-accent-primary hover:text-[#050505] hover:shadow-[0_0_28px_rgba(0,229,255,0.4)] transition-all duration-300"
                 >
                   Enter Neural Net
                 </a>
@@ -181,7 +182,7 @@ export default function Hero() {
                 <a
                   href="#contact"
                   id="cta-contact"
-                  className="inline-flex items-center justify-center px-7 py-3.5 border border-white/10 text-white font-display font-bold text-xs uppercase tracking-widest rounded-full hover:border-accent-secondary hover:bg-white/5 hover:shadow-[0_0_20px_rgba(176,38,255,0.2)] transition-all duration-300"
+                  className="inline-flex items-center justify-center px-5 py-3 md:px-7 md:py-3.5 border border-white/10 text-white font-display font-bold text-[10px] md:text-xs uppercase tracking-widest rounded-full hover:border-accent-secondary hover:bg-white/5 hover:shadow-[0_0_20px_rgba(176,38,255,0.2)] transition-all duration-300"
                 >
                   Initiate Contact
                 </a>

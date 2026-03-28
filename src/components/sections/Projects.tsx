@@ -228,64 +228,70 @@ export default function Projects() {
           </div>
 
           <div className="max-w-lg mx-auto space-y-12">
-            {PROJECTS.map((project) => (
-              <motion.div
-                key={project.id}
-                className="glass-card p-6 rounded-xl"
-                initial={{ y: 60, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              >
-                {/* Image */}
-                <div className="w-full aspect-video rounded-lg mb-5 relative overflow-hidden">
-                  <Image
-                    src={project.image}
-                    alt={project.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover"
-                  />
-                  <div
-                    className="absolute inset-0"
-                    style={{
-                      background: `linear-gradient(135deg, ${project.color}15, #11111188)`,
-                    }}
-                  />
-                </div>
-
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {project.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider border text-text-primary"
-                      style={{
-                        borderColor: `${project.color}30`,
-                        backgroundColor: `${project.color}05`,
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                <h3 className="font-display text-xl font-bold text-text-primary mb-2">
-                  {project.title}
-                </h3>
-                <p className="font-body text-sm text-text-secondary mb-4 leading-relaxed">
-                  {project.description}
-                </p>
-
-                <a
-                  href={project.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-wider"
-                  style={{ color: project.color }}
+            {PROJECTS.map((project, idx) => (
+              <div key={project.id} className="relative">
+                <motion.div
+                  className="glass-card p-6 md:p-8 rounded-xl border border-white/5"
+                  initial={{ y: 60, opacity: 0 }}
+                  whileInView={{ y: 0, opacity: 1 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                 >
-                  View Project <ExternalLink size={12} />
-                </a>
-              </motion.div>
+                  {/* Image */}
+                  <div className="w-full aspect-video rounded-lg mb-6 relative overflow-hidden ring-1 ring-white/10">
+                    <Image
+                      src={project.image}
+                      alt={project.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover"
+                    />
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        background: `linear-gradient(135deg, ${project.color}15, #11111188)`,
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {project.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider border text-text-primary"
+                        style={{
+                          borderColor: `${project.color}30`,
+                          backgroundColor: `${project.color}05`,
+                        }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <h3 className="font-display text-2xl font-bold text-text-primary mb-3">
+                    {project.title}
+                  </h3>
+                  <p className="font-body text-sm text-text-secondary mb-6 leading-relaxed">
+                    {project.description}
+                  </p>
+
+                  <a
+                    href={project.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded-lg border transition-colors"
+                    style={{ color: project.color, borderColor: `${project.color}40`, backgroundColor: `${project.color}10` }}
+                  >
+                    View Project <ExternalLink size={14} />
+                  </a>
+                </motion.div>
+                
+                {/* Divider Line between projects (except last) */}
+                {idx !== PROJECTS.length - 1 && (
+                  <div className="w-1/2 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent mx-auto mt-16 mb-4" />
+                )}
+              </div>
             ))}
           </div>
         </div>

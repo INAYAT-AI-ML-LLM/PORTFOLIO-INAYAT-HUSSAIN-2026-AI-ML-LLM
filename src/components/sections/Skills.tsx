@@ -70,8 +70,7 @@ export default function Skills() {
           </h2>
         </div>
 
-        {/* Skill Category Cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 mb-28">
           {SKILL_CATEGORIES.map((cat, index) => {
             const IconComponent = ICON_MAP[cat.icon as keyof typeof ICON_MAP];
             return (
@@ -84,19 +83,19 @@ export default function Skills() {
                 transition={{ duration: 0.8, delay: index * 0.1 }}
               >
                 <GlassCard className="p-8 h-full flex flex-col hover:bg-white/5 transition-colors group" data-cursor="button">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-accent-primary/20 to-transparent flex items-center justify-center border border-accent-primary/30 group-hover:shadow-[0_0_20px_rgba(0,229,255,0.4)] group-hover:scale-110 transition-all duration-500">
+                  <div className="flex items-center gap-4 mb-6 md:mb-8">
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-accent-primary/20 to-transparent flex items-center justify-center border border-accent-primary/30 group-hover:shadow-[0_0_20px_rgba(0,229,255,0.4)] group-hover:scale-110 transition-all duration-500 shrink-0">
                       <IconComponent size={24} className="text-accent-primary drop-shadow-[0_0_8px_rgba(0,229,255,1)]" />
                     </div>
                     <h3 className="font-display font-bold text-xl text-text-primary tracking-wide">
                       {cat.category}
                     </h3>
                   </div>
-                  <div className="flex flex-wrap gap-2.5 mt-auto">
+                  <div className="flex flex-wrap gap-3 md:gap-4 mt-auto">
                     {cat.skills.map((skill) => (
                       <span
                         key={skill}
-                        className="px-4 py-2 rounded-full bg-white/5 text-text-primary flex items-center gap-2 font-mono text-[12px] border border-white/10 hover:border-accent-primary/50 hover:bg-accent-primary/10 hover:text-accent-primary hover:shadow-[0_0_15px_rgba(0,229,255,0.3)] transition-all duration-300"
+                        className="px-4 py-2 rounded-full bg-white/5 text-text-primary flex items-center gap-2 font-mono text-[11px] md:text-[12px] border border-white/10 hover:border-accent-primary/50 hover:bg-accent-primary/10 hover:text-accent-primary hover:shadow-[0_0_15px_rgba(0,229,255,0.3)] transition-all duration-300"
                       >
                         {SKILL_ICONS[skill as keyof typeof SKILL_ICONS] && (
                           <i className={`${SKILL_ICONS[skill as keyof typeof SKILL_ICONS]} text-base`} />
@@ -112,11 +111,11 @@ export default function Skills() {
         </div>
 
         {/* Floating Tech Cloud */}
-        <div className="flex flex-wrap justify-center gap-4 max-w-5xl mx-auto">
+        <div className="flex flex-wrap justify-center gap-4 md:gap-5 max-w-5xl mx-auto px-2">
           {ALL_SKILLS.map((skill, i) => (
             <motion.span
               key={skill}
-              className="px-5 py-2.5 rounded-full glass-card flex items-center gap-2.5 font-mono text-sm text-text-muted hover:text-text-primary hover:border-accent-secondary hover:bg-accent-secondary/10 hover:shadow-[0_0_20px_rgba(176,38,255,0.4)] transition-all duration-300 hover:-translate-y-1 cursor-none"
+              className="px-5 md:px-6 py-2.5 md:py-3 rounded-full glass-card flex items-center gap-2.5 md:gap-3 font-mono text-xs md:text-sm text-text-muted hover:text-text-primary hover:border-accent-secondary hover:bg-accent-secondary/10 hover:shadow-[0_0_20px_rgba(176,38,255,0.4)] transition-all duration-300 hover:-translate-y-1 cursor-none"
               initial={{ scale: 0, opacity: 0 }}
               whileInView={{ scale: 1, opacity: 1 }}
               viewport={{ once: true, amount: 0.1 }}
@@ -129,7 +128,7 @@ export default function Skills() {
               data-cursor="button"
             >
               {SKILL_ICONS[skill as keyof typeof SKILL_ICONS] && (
-                <i className={`${SKILL_ICONS[skill as keyof typeof SKILL_ICONS]} text-lg`} />
+                <i className={`${SKILL_ICONS[skill as keyof typeof SKILL_ICONS]} text-lg md:text-xl`} />
               )}
               {skill}
             </motion.span>

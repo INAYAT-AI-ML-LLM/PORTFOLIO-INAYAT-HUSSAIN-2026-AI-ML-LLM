@@ -129,12 +129,12 @@ export default function Certifications() {
 
                   {/* Right: Content */}
                   <div className="flex-1 w-full flex flex-col justify-center">
-                    <div className="mb-6">
-                      <h3 className="font-display text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70 leading-tight mb-4">
+                    <div className="mb-6 md:mb-8">
+                      <h3 className="font-display text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70 leading-tight mb-4">
                         <TextScramble text={featured.title} play={true} speed={40} />
                       </h3>
 
-                      <div className="flex flex-wrap items-center gap-y-3 gap-x-6 font-mono text-sm text-text-muted bg-white/5 p-4 rounded-xl border border-white/5">
+                      <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-6 font-mono text-xs md:text-sm text-text-muted bg-white/5 p-4 rounded-xl border border-white/5">
                         <div className="flex items-center gap-2">
                           <Calendar size={16} className="text-accent-secondary" /> Issued {featured.date}
                         </div>
@@ -146,17 +146,17 @@ export default function Certifications() {
                       </div>
                     </div>
 
-                    <p className="font-body text-lg text-text-secondary leading-relaxed mb-8">
+                    <p className="font-body text-base md:text-lg text-text-secondary leading-relaxed mb-8 md:mb-10">
                       {featured.description}
                     </p>
 
-                    <div className="mb-10">
-                      <h4 className="font-mono text-xs text-text-muted uppercase tracking-widest mb-4">Core Skills Authorized</h4>
+                    <div className="mb-10 md:mb-12">
+                      <h4 className="font-mono text-[10px] md:text-xs text-text-muted uppercase tracking-widest mb-3 md:mb-4">Core Skills Authorized</h4>
                       <div className="flex flex-wrap gap-2.5">
                         {featured.skills.map((skill) => (
                           <span
                             key={skill}
-                            className="px-4 py-2 bg-gradient-to-r from-accent-secondary/20 to-accent-secondary/5 border border-accent-secondary/30 text-bg-primary rounded-lg font-mono text-xs tracking-wider shadow-[0_0_15px_rgba(139,92,246,0.1)]"
+                            className="px-3 md:px-4 py-1.5 md:py-2 bg-gradient-to-r from-accent-secondary/20 to-accent-secondary/5 border border-accent-secondary/30 text-bg-primary rounded-lg font-mono text-[10px] md:text-xs tracking-wider shadow-[0_0_15px_rgba(139,92,246,0.1)] mb-1"
                           >
                             {skill}
                           </span>
@@ -168,10 +168,10 @@ export default function Certifications() {
                       href={featured.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-3 w-max px-8 py-4 bg-accent-secondary text-bg-primary font-display font-semibold text-sm uppercase tracking-widest rounded-full hover:shadow-[0_0_40px_rgba(139,92,246,0.5)] transition-all duration-300 transform hover:-translate-y-1"
+                      className="inline-flex items-center justify-center gap-3 w-full sm:w-max px-6 md:px-8 py-4 bg-accent-secondary text-bg-primary font-display font-semibold text-xs md:text-sm uppercase tracking-widest rounded-full hover:shadow-[0_0_40px_rgba(139,92,246,0.5)] transition-all duration-300 transform hover:-translate-y-1 relative z-20"
                       data-cursor="button"
                     >
-                      Verify Credential <ExternalLink size={18} />
+                      Verify Credential <ExternalLink size={16} />
                     </a>
                   </div>
                 </div>
