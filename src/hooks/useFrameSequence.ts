@@ -9,11 +9,14 @@ export function useFrameSequence(frameCount: number, pathPrefix: string, padLeng
     let loadedCount = 0;
     const loadedImages: HTMLImageElement[] = new Array(frameCount);
     let isCancelled = false;
+    
+    // We only force the user to wait for the first 15 frames for an instant 1-2 second load
+    const PRELOAD_THRESHOLD = Math.min(15, frameCount);
+    let initialUnblocked = false;
 
-    // Concurrently load frames for high-performance zero-lag start
     const loadImages = async () => {
       // Chunk loading to avoid choking the browser queue while maintaining speed
-      const chunkSize = 20; 
+      const chunkSize = 15; 
       for (let i = 0; i < frameCount; i += chunkSize) {
         if (isCancelled) break;
         
@@ -27,23 +30,33 @@ export function useFrameSequence(frameCount: number, pathPrefix: string, padLeng
             const handleComplete = () => {
               loadedImages[frameIndex - 1] = img;
               loadedCount++;
-              setProgress(Math.round((loadedCount / frameCount) * 100));
+              
+              if (!initialUnblocked) {
+                const currentProgress = Math.round((loadedCount / PRELOAD_THRESHOLD) * 100);
+                setProgress(Math.min(currentProgress, 100));
+                
+                if (loadedCount >= PRELOAD_THRESHOLD) {
+                  initialUnblocked = true;
+                  setImages([...loadedImages]); 
+                }
+              }
               resolve();
             };
 
             img.onload = handleComplete;
             img.onerror = () => {
-              console.error(`Failed to load frame ${frameNum}`);
-              handleComplete(); // resolve anyway to keep moving
+              // resolve anyway to keep moving, don't crash
+              handleComplete(); 
             };
           });
         });
         
         await Promise.all(chunk);
-      }
-      
-      if (!isCancelled) {
-        setImages(loadedImages);
+        
+        // Background update of the images array as more chunks load silently
+        if (initialUnblocked && !isCancelled) {
+          setImages([...loadedImages]);
+        }
       }
     };
 
@@ -54,5 +67,5 @@ export function useFrameSequence(frameCount: number, pathPrefix: string, padLeng
     };
   }, [frameCount, pathPrefix, padLength]);
 
-  return { images, progress, isLoaded: progress === 100 };
+  return { images, progress, isLoaded: progress >= 100 };
 }

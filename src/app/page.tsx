@@ -1,7 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import Preloader from "@/components/Preloader";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/sections/Hero";
 import { useLenis } from "@/hooks/useLenis";
@@ -20,29 +18,7 @@ const Certifications = dynamic(() => import("@/components/sections/Certification
 const Contact = dynamic(() => import("@/components/sections/Contact"));
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
-
   useLenis();
-
-  useEffect(() => {
-    document.documentElement.style.overflow = "hidden";
-
-    const fallback = setTimeout(() => {
-      setIsLoading(false);
-    }, 4000);
-
-    return () => {
-      clearTimeout(fallback);
-      document.documentElement.style.overflow = "";
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!isLoading) {
-      document.documentElement.style.overflow = "";
-      window.scrollTo(0, 0);
-    }
-  }, [isLoading]);
 
   return (
     <>
@@ -50,17 +26,7 @@ export default function Home() {
         Skip to Content
       </a>
 
-      {isLoading && (
-        <Preloader onComplete={() => setIsLoading(false)} />
-      )}
-
-      <div
-        style={{
-          visibility: isLoading ? "hidden" : "visible",
-          opacity: isLoading ? 0 : 1,
-          transition: "opacity 0.4s ease",
-        }}
-      >
+      <div>
         <AnimatedGradientBackground />
         <CustomCursor />
         <Navbar />
