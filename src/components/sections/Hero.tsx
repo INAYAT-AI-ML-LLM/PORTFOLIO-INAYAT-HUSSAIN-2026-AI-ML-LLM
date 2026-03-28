@@ -1,188 +1,197 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import MagneticButton from "@/components/ui/MagneticButton";
 import TextScramble from "@/components/ui/TextScramble";
 import ScrollIndicator from "@/components/ui/ScrollIndicator";
-import FrameCanvas from "@/components/ui/FrameCanvas";
 import { useFrameSequence } from "@/hooks/useFrameSequence";
-import Image from "next/image";
 
-gsap.registerPlugin(ScrollTrigger);
+// Dynamically import FrameCanvas — never SSR'd, never blocks initial paint
+const FrameCanvas = dynamic(() => import("@/components/ui/FrameCanvas"), {
+  ssr: false,
+});
 
 export default function Hero() {
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
-  
-  // 210 frames dynamically loaded
-  const { images, progress, isLoaded } = useFrameSequence(210, "/images/hero section images frame/ezgif-frame-");
+  const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
+  // Detect device type once on mount
   useEffect(() => {
-    // Detect mobile / touch screens to apply fallback early on
-    setIsTouchDevice(
-      "ontouchstart" in window || navigator.maxTouchPoints > 0
+    setMounted(true);
+    setIsMobile(
+      window.matchMedia("(max-width: 768px)").matches ||
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0
     );
   }, []);
 
+  // Only load frames after mount and only on non-mobile
+  // Mobile gets a single optimized JPG → near-instant LCP
+  const shouldLoadFrames = mounted && !isMobile;
+  const { images, progress, isLoaded } = useFrameSequence(
+    shouldLoadFrames ? 210 : 0,
+    "/images/hero section images frame/ezgif-frame-"
+  );
+
+  const showContent = isMobile || isLoaded;
+
   return (
     <>
-      {/* 
-        ═══════════════════════════════════════════════════
-        MASTER PRELOADER (INITIATE SEQUENCE)
-        ═══════════════════════════════════════════════════
-      */}
-      <AnimatePresence>
-        {!isLoaded && !isTouchDevice && (
+      {/* ─── PRELOADER ── desktop only, fades once 10 frames preloaded ──────── */}
+      <AnimatePresence mode="wait">
+        {!isMobile && !isLoaded && mounted && (
           <motion.div
-            className="fixed inset-0 z-[1000] flex flex-col items-center justify-center bg-[#050505] text-white"
-            exit={{ opacity: 0, scale: 1.05 }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
+            key="preloader"
+            className="fixed inset-0 z-[1000] flex flex-col items-center justify-center bg-[#050505]"
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            aria-label="Loading portfolio"
+            role="status"
           >
-            <div className="flex flex-col items-center gap-6 w-full max-w-sm px-6">
-              <span className="font-mono text-xs uppercase tracking-[0.3em] text-accent-primary animate-pulse">
+            <div className="flex flex-col items-center gap-6 w-full max-w-xs px-6">
+              <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-accent-primary animate-pulse">
                 Initiating Master Build
               </span>
-              
-              <h2 className="font-display text-4xl font-bold tracking-widest drop-shadow-[0_0_15px_rgba(0,229,255,0.4)]">
+              <p className="font-display text-4xl font-bold text-white drop-shadow-[0_0_15px_rgba(0,229,255,0.4)]">
                 {progress}%
-              </h2>
-
-              <div className="w-full h-[2px] bg-white/10 relative overflow-hidden mt-2">
+              </p>
+              <div className="w-full h-[2px] bg-white/10 overflow-hidden rounded-full">
                 <motion.div
-                  className="absolute top-0 left-0 h-full bg-accent-primary shadow-[0_0_10px_rgba(0,229,255,0.8)]"
+                  className="h-full bg-accent-primary"
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
+                  transition={{ ease: "linear" }}
+                  style={{ boxShadow: "0 0 10px rgba(0,229,255,0.8)" }}
                 />
               </div>
-              
-              <span className="font-mono text-[10px] uppercase text-text-dim">
-                Mounting Render Pipeline...
+              <span className="font-mono text-[10px] text-white/30 uppercase tracking-widest">
+                Mounting Render Pipeline…
               </span>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* 
-        ═══════════════════════════════════════════════════
-        HERO SECTION WRAPPER (height set heavily for scrolling)
-        ═══════════════════════════════════════════════════
-      */}
-      <section id="hero" className="relative">
-        
-        {/*
-          THE CANVAS TIMELINE:
-          If touch, show fallback image immediately. If desktop, render sequence context.
-        */}
-        <div className="h-[250vh]">
-          {isTouchDevice ? (
-            // Mobile Fallback: Parallax Static Image
-            <div className="sticky top-16 md:top-20 h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] w-full overflow-hidden flex items-center justify-center">
-              <Image 
+      {/* ─── HERO SECTION ─────────────────────────────────────────────────────── */}
+      <section
+        id="hero"
+        className="relative"
+        style={{ height: isMobile ? "100dvh" : "250vh" }}
+      >
+        {/* ─── BACKGROUND ─────────────────────────────────────────────────── */}
+        {mounted && (
+          isMobile ? (
+            /* Mobile — single frame as <Image> → fast LCP, no canvas overhead */
+            <div
+              className="sticky w-full overflow-hidden bg-[#050505]"
+              style={{ top: "var(--navbar-h, 4rem)", height: "calc(100dvh - var(--navbar-h, 4rem))" }}
+            >
+              <Image
                 src="/images/hero section images frame/ezgif-frame-210.jpg"
-                alt="Inayat Hero"
+                alt="Inayat Hussain 3D portrait"
                 fill
-                className="object-contain md:object-cover"
-                sizes="100vw"
                 priority
+                sizes="100vw"
+                quality={85}
+                className="object-contain"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-[#050505]/80" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/30 to-transparent pointer-events-none" />
             </div>
           ) : (
-            // Desktop 60fps WebGL/Canvas Scroll Engine
             isLoaded && <FrameCanvas images={images} />
-          )}
+          )
+        )}
 
-          {/* 
-            ═══════════════════════════════════════════════════
-            CONTENT OVERLAY
-            ═══════════════════════════════════════════════════
-          */}
-          <div className="absolute top-16 md:top-20 left-0 w-full h-[calc(100dvh-4rem)] md:h-[calc(100dvh-5rem)] flex flex-col justify-end pb-[12vh] px-6 md:px-12 z-10 pointer-events-none">
-            <div className="w-full flex flex-col items-start max-w-4xl pointer-events-auto">
-              
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={isLoaded || isTouchDevice ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="inline-flex items-center gap-4 mb-8"
-              >
-                <div className="w-2 h-2 rounded-full bg-accent-primary shadow-[0_0_10px_rgba(0,229,255,0.8)] animate-pulse" />
-                <span className="font-mono text-xs uppercase tracking-[0.2em] text-accent-primary">
-                  System Online
-                </span>
-              </motion.div>
+        {/* ─── TEXT OVERLAY ────────────────────────────────────────────────── */}
+        {/*  Positioned relative to viewport bottom so it's always readable    */}
+        <div
+          className="fixed left-0 w-full z-10 pointer-events-none px-6 md:px-12"
+          style={{ bottom: "12vh" }}
+          aria-live="polite"
+        >
+          <div className="w-full max-w-4xl mx-auto flex flex-col items-start gap-4 pointer-events-auto">
 
-              <motion.h1
-                className="sr-only"
-                style={{ fontSize: "clamp(3rem, 7vw, 6.5rem)" }}
-                initial={{ opacity: 0 }}
-                animate={isLoaded || isTouchDevice ? { opacity: 1 } : {}}
-              >
-                {(isLoaded || isTouchDevice) && (
-                  <TextScramble text="INAYAT HUSSAIN" speed={40} play={true} />
-                )}
-              </motion.h1>
+            {/* Status indicator */}
+            <motion.div
+              className="inline-flex items-center gap-3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={showContent ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              <span className="w-2 h-2 rounded-full bg-accent-primary animate-pulse shadow-[0_0_8px_rgba(0,229,255,0.8)]" />
+              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-accent-primary">
+                System Online
+              </span>
+            </motion.div>
 
-              <motion.h2
-                className="font-body font-medium text-text-primary mb-8 text-shadow-sm opacity-90 tracking-wide"
-                style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.6rem)" }}
-                initial={{ opacity: 0, x: -20 }}
-                animate={isLoaded || isTouchDevice ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.8 }}
-              >
-                Software Engineer | Full Stack & GenAI Specialist
-              </motion.h2>
+            {/* Main name — sr-only so it doesn't duplicate 3D baked text */}
+            <h1 className="sr-only">Inayat Hussain</h1>
 
-              <motion.div
-                className="glass-card mb-16 px-6 py-4 border-l-2 text-text-muted bg-[#050505]/40 backdrop-blur-md"
-                style={{ borderLeftColor: "var(--accent-secondary)" }}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={isLoaded || isTouchDevice ? { opacity: 1, scale: 1 } : {}}
-                transition={{ duration: 0.8, delay: 1 }}
-              >
-                <p className="font-mono text-xs md:text-sm tracking-widest text-[#B0B0B0]">
-                  Building Scalable Web Solutions & Intelligent AI Systems
-                </p>
-              </motion.div>
+            {/* Job title — h2 for correct heading hierarchy */}
+            <motion.h2
+              className="font-body font-semibold text-white/90 tracking-wide"
+              style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.65rem)" }}
+              initial={{ opacity: 0, x: -20 }}
+              animate={showContent ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.7, delay: 0.3 }}
+            >
+              {showContent && (
+                <TextScramble text="Software Engineer | Full Stack & GenAI Specialist" speed={20} play />
+              )}
+            </motion.h2>
 
-              {/* CTAs */}
-              <motion.div
-                className="flex flex-col sm:flex-row items-center gap-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={isLoaded || isTouchDevice ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.8, delay: 1.2 }}
-              >
-                <MagneticButton>
-                  <a
-                    href="#projects"
-                    className="inline-flex items-center justify-center px-8 py-4 neon-border bg-[#101010] text-accent-primary font-display font-bold text-xs uppercase tracking-widest rounded-full hover:bg-accent-primary hover:text-[#050505] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] transition-all duration-300 pointer-events-auto"
-                    data-cursor="button"
-                  >
-                    Enter Neural Net
-                  </a>
-                </MagneticButton>
-                
-                <MagneticButton>
-                  <a
-                    href="#contact"
-                    className="inline-flex items-center justify-center px-8 py-4 bg-transparent border border-white/10 text-text-primary font-display font-bold text-xs uppercase tracking-widest rounded-full hover:border-accent-secondary hover:shadow-[0_0_20px_rgba(176,38,255,0.2)] hover:bg-[#1a1a1a] transition-all duration-300 pointer-events-auto"
-                    data-cursor="button"
-                  >
-                    Initiate Contact
-                  </a>
-                </MagneticButton>
-              </motion.div>
+            {/* Tag line */}
+            <motion.div
+              className="backdrop-blur-md bg-[#050505]/50 border-l-2 px-5 py-3 rounded-r-md"
+              style={{ borderLeftColor: "var(--accent-secondary, #b026ff)" }}
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={showContent ? { opacity: 1, scale: 1 } : {}}
+              transition={{ duration: 0.7, delay: 0.5 }}
+            >
+              <p className="font-mono text-xs md:text-sm tracking-widest text-white/60">
+                Building Scalable Web Solutions &amp; Intelligent AI Systems
+              </p>
+            </motion.div>
 
-            </div>
+            {/* CTAs */}
+            <motion.div
+              className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-2"
+              initial={{ opacity: 0, y: 16 }}
+              animate={showContent ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.7, delay: 0.7 }}
+            >
+              <MagneticButton>
+                <a
+                  href="#projects"
+                  id="cta-projects"
+                  className="inline-flex items-center justify-center px-7 py-3.5 neon-border bg-[#0d0d0d] text-accent-primary font-display font-bold text-xs uppercase tracking-widest rounded-full hover:bg-accent-primary hover:text-[#050505] hover:shadow-[0_0_28px_rgba(0,229,255,0.4)] transition-all duration-300"
+                >
+                  Enter Neural Net
+                </a>
+              </MagneticButton>
+
+              <MagneticButton>
+                <a
+                  href="#contact"
+                  id="cta-contact"
+                  className="inline-flex items-center justify-center px-7 py-3.5 border border-white/10 text-white font-display font-bold text-xs uppercase tracking-widest rounded-full hover:border-accent-secondary hover:bg-white/5 hover:shadow-[0_0_20px_rgba(176,38,255,0.2)] transition-all duration-300"
+                >
+                  Initiate Contact
+                </a>
+              </MagneticButton>
+            </motion.div>
+
           </div>
         </div>
 
-        {/* Global Scroll Indicator */}
-        <div className="absolute bottom-[5vh] left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-          <ScrollIndicator />
-        </div>
+        {/* Scroll indicator — only on desktop during canvas sequence */}
+        {!isMobile && (
+          <div className="absolute bottom-[5vh] left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+            <ScrollIndicator />
+          </div>
+        )}
       </section>
     </>
   );

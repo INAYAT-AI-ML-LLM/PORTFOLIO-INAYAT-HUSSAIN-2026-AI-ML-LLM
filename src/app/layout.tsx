@@ -65,7 +65,22 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <head>
-        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+        {/* Preconnect to CDN so DNS is resolved ahead of time */}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+        {/* Non-render-blocking Devicon load */}
+        <link
+          rel="stylesheet"
+          type="text/css"
+          href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"
+          media="print"
+          // @ts-expect-error – onLoad trick for async CSS
+          onLoad="this.media='all'"
+        />
+        <noscript>
+          <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+        </noscript>
+        {/* CSS var for navbar height used by sticky canvas */}
+        <style>{`:root { --navbar-h: 4rem; } @media (min-width: 768px) { :root { --navbar-h: 5rem; } }`}</style>
       </head>
       <body suppressHydrationWarning className="font-body bg-bg-primary text-text-primary antialiased overscroll-none">
         {/* Global film grain overlay */}
